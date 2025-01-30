@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Financeira</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 20px;
+            margin-bottom: 60px; /* Espaço para evitar sobreposição do rodapé */
+        }
+
+        .section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        form input, form select {
+            margin: 5px;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        form button {
+            padding: 7px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+
+        .action-btns button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .action-btns .edit-btn {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .action-btns .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .negative {
+            color: red;
+            font-weight: bold;
+            border: 2px solid red;
+            border-radius: 5px;
+            padding: 2px 5px;
+        }
+
+        .positive {
+            color: green;
+            font-weight: bold;
+            border: 2px solid green;
+            border-radius: 5px;
+            padding: 2px 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#overview">Visão Geral</a></li>
+                <li><a href="#transactions">Transações</a></li>
+                <li><a href="#charts">Gráficos</a></li>
+                <li><a href="#settings">Configurações</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="overview" class="section active">
+            <h2>Visão Geral</h2>
+            <p>Resumo financeiro do mês atual.</p>
+            <div class="card">
+                <h3>Saldo Atual</h3>
+                <p id="currentBalance">R$ 0,00</p>
+            </div>
+            <div class="card">
+                <h3>Despesas</h3>
+                <p id="totalExpenses">R$ 0,00</p>
+            </div>
+            <div class="card">
+                <h3>Receitas</h3>
+                <p id="totalIncome">R$ 0,00</p>
+            </div>
+        </section>
+
+        <section id="transactions" class="section">
+            <h2>Transações</h2>
+            <p>Lista de transações recentes.</p>
+            <table id="transactionsTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Transações serão adicionadas aqui dinamicamente -->
+                </tbody>
+            </table>
+            <h3>Adicionar Nova Transação</h3>
+            <form id="transactionForm">
+                <input type="date" id="transactionDate" required>
+                <input type="text" id="transactionDescription" placeholder="Descrição" required>
+                <input type="number" id="transactionAmount" placeholder="Valor (R$)" required>
+                <button type="submit">Adicionar</button>
+            </form>
+        </section>
+
+        <section id="charts" class="section">
+            <h2>Gráficos</h2>
+            <p>Gráficos de despesas e receitas.</p>
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </section>
+
+        <section id="settings" class="section">
+            <h2>Configurações</h2>
+            <p>Configurações da conta e preferências.</p>
+            <form>
+                <label for="currency">Moeda:</label>
+                <select id="currency">
+                    <option value="BRL">Real (BRL)</option>
+                    <option value="USD">Dólar (USD)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                </select>
+                <button type="submit">Salvar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Gestão Financeira - CRIADOR EMILIO </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('nav ul li a');
+            const transactionsTable = document.getElementById('transactionsTable').getElementsByTagName('tbody')[0];
+            const transactionForm = document.getElementById('transactionForm');
+            const transactionDate = document.getElementById('transactionDate');
+            const transactionDescription = document.getElementById('transactionDescription');
+            const transactionAmount = document.getElementById('transactionAmount');
+            const currentBalance = document.getElementById('currentBalance');
+            const totalExpenses = document.getElementById('totalExpenses');
+            const totalIncome = document.getElementById('totalIncome');
+            const chartCanvas = document.getElementById('myChart');
+
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let chartInstance = null;
+
+            // Função para mostrar a seção ativa
+            function showSection(sectionId) {
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+            }
+
+            // Adiciona eventos de clique aos links de navegação
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const sectionId = this.getAttribute('href').substring(1);
+                    showSection(sectionId);
+                });
+            });
+
+            // Função para atualizar a Visão Geral e o gráfico
+            function updateOverview() {
+                let income = 0;
+                let expenses = 0;
+                transactions.forEach(transaction => {
+                    if (transaction.amount > 0) {
+                        income += parseFloat(transaction.amount);
+                    } else {
+                        expenses += Math.abs(parseFloat(transaction.amount));
+                    }
+                });
+
+                currentBalance.textContent = `R$ ${(income - expenses).toFixed(2)}`;
+                totalExpenses.textContent = `R$ ${expenses.toFixed(2)}`;
+                totalIncome.textContent = `R$ ${income.toFixed(2)}`;
+
+                updateChart(income, expenses);
+            }
+
+            // Função para atualizar o gráfico
+            function updateChart(income, expenses) {
+                const ctx = chartCanvas.getContext('2d');
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Despesas', 'Receitas'],
+                        datasets: [{
+                            label: 'Valores',
+                            data: [expenses, income],
+                            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Função para adicionar ou editar uma transação
+            function saveTransaction(date, description, amount) {
+                transactions.push({ date, description, amount });
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                renderTransactions();
+                updateOverview();
+            }
+
+            // Função para renderizar a tabela de transações
+            function renderTransactions() {
+                transactionsTable.innerHTML = '';
+                transactions.forEach(transaction => {
+                    const row = transactionsTable.insertRow();
+                    row.insertCell(0).textContent = transaction.date;
+                    row.insertCell(1).textContent = transaction.description;
+                    const amountCell = row.insertCell(2);
+                    amountCell.textContent = `R$ ${parseFloat(transaction.amount).toFixed(2)}`;
+
+                    if (transaction.amount < 0) {
+                        amountCell.classList.add('negative');
+                    } else {
+                        amountCell.classList.add('positive');
+                    }
+
+                    const actionsCell = row.insertCell(3);
+                    actionsCell.classList.add('action-btns');
+
+                    // Botões de excluir
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Excluir';
+                    deleteButton.classList.add('delete-btn');
+                    deleteButton.onclick = () => deleteTransaction(transaction);
+
+                    actionsCell.appendChild(deleteButton);
+                });
+            }
+
+            // Função para excluir uma transação
+            function deleteTransaction(transaction) {
+                transactions = transactions.filter(t => t !== transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                renderTransactions();
+                updateOverview();
+            }
+
+            // Evento de envio do formulário
+            transactionForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const date = transactionDate.value;
+                const description = transactionDescription.value;
+                const amount = transactionAmount.value;
+
+                saveTransaction(date, description, parseFloat(amount));
+
+                // Limpar o formulário
+                transactionDate.value = '';
+                transactionDescription.value = '';
+                transactionAmount.value = '';
+            });
+
+            // Renderizar as transações e atualizar a visão geral ao carregar
+            renderTransactions();
+            updateOverview();
+        });
+    </script>
+</body>
+</html>
